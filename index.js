@@ -49,6 +49,7 @@ esp8266_nsp.on('connection', function(socket) {
 	
 	//nhận được bất cứ lệnh nào
 	socket.on("*", function(packet) {
+		console.log("esp8266 rev and send to webapp packet: ", packet.data) //in ra để debug
 		var eventName = packet.data[0]
 		var eventJson = packet.data[1] || {} //nếu gửi thêm json thì lấy json từ lệnh gửi, không thì gửi chuỗi json rỗng, {}
 		webapp_nsp.emit(eventName, eventJson) //gửi toàn bộ lệnh + json đến webapp
@@ -67,6 +68,7 @@ webapp_nsp.on('connection', function(socket) {
 	})
 	
 	socket.on('*', function(packet) {
+		console.log("webapp rev and send to esp8266 packet: ", packet.data) //in ra để debug
 		var eventName = packet.data[0]
 		var eventJson = packet.data[1] || {} //nếu gửi thêm json thì lấy json từ lệnh gửi, không thì gửi chuỗi json rỗng, {}
 		esp8266_nsp.emit(eventName, eventJson) //gửi toàn bộ lệnh + json đến esp8266
