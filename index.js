@@ -20,6 +20,7 @@ webapp_nsp.use(middleware);									//Khi webapp emit bất kỳ lệnh gì lên
 server.listen(PORT);										// Cho socket server (chương trình mạng) lắng nghe ở port 3484
 console.log("Server nodejs chay tai dia chi: " + ip.address() + ":" + PORT)
 
+//Cài đặt webapp các fie dữ liệu tĩnh
 app.use(express.static("node_modules/mobile-angular-ui")) 			// Có thể truy cập các file trong node_modules/mobile-angular-ui từ xa
 app.use(express.static("node_modules/angular")) 							// Có thể truy cập các file trong node_modules/angular từ xa
 app.use(express.static("node_modules/angular-route")) 				// Có thể truy cập các file trong node_modules/angular-route từ xa
@@ -38,22 +39,6 @@ function ParseJson(jsondata) {
 }
 
 
-//Khi có mệt kết nối được tạo giữa Socket Client và Socket Server
-io.on('connection', function(socket) {	//'connection' (1) này khác gì với 'connection' (2)
-    console.log("Connected"); //In ra màn hình console là đã có một Socket Client kết nối thành công
-	//ở đây, socket client ở webapp sẽ có namespace là webapp 
-	//				socket client ở esp8266 sẽ có namespace là esp8266
-	socket.on('disconnect', function() {
-		console.log("Disconnect socket")
-	})
-	
-	
-	socket.on("*", function(data) {
-		console.log(data);
-	});
-	
-});
-
 //Bắt các sự kiện khi esp8266 kết nối
 esp8266_nsp.on('connection', function(socket) {
 	console.log('esp8266 connected')
@@ -66,7 +51,7 @@ esp8266_nsp.on('connection', function(socket) {
 	socket.on("*", function(packet) {
 		var eventName = packet.data[0]
 		var eventJson = packet.data[1] || {} //nếu gửi thêm json thì lấy json từ lệnh gửi, không thì gửi chuỗi json rỗng, {}
-		webapp_nsp.emit(eventName, eventJson)
+		webapp_nsp.emit(eventName, eventJson) //gửi toàn bộ lệnh + json đến webapp
 	})
 })
 
@@ -84,6 +69,6 @@ webapp_nsp.on('connection', function(socket) {
 	socket.on('*', function(packet) {
 		var eventName = packet.data[0]
 		var eventJson = packet.data[1] || {} //nếu gửi thêm json thì lấy json từ lệnh gửi, không thì gửi chuỗi json rỗng, {}
-		esp8266_nsp.emit(eventName, eventJson)
+		esp8266_nsp.emit(eventName, eventJson) //gửi toàn bộ lệnh + json đến esp8266
 	});
 })
